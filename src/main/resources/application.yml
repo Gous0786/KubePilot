@@ -1,0 +1,59 @@
+quarkus:
+  application:
+    name: kubepilot
+
+  http:
+    port: 8080
+
+  # The fabric8 client picks up ~/.kube/config automatically outside a cluster, and the
+  # mounted service-account token when running inside one. No explicit config needed for
+  # local development against a kind cluster.
+  kubernetes-client:
+    trust-certs: false
+
+# ---------------------------------------------------------------------------
+# KubePilot's own configuration. Read via an @ConfigMapping interface rather
+# than scattered @ConfigProperty injections -- see docs/architecture.md.
+# ---------------------------------------------------------------------------
+kubepilot:
+  scan:
+    # Empty means every namespace the credential is allowed to read.
+    default-namespace: ""
+    include-events: true
+    # Evidence budget: uncapped logs are what make tools like this slow and expensive.
+    max-log-lines: 100
+    max-events-per-resource: 10
+
+  analyzers:
+    # Empty means "all registered analyzers". Populate to run a subset,
+    # e.g. [pod, deployment, service]. Severities and thresholds belong in
+    # src/main/resources/analyzers/rules.yaml so tuning needs no recompile.
+    enabled: []
+
+  ai:
+    # M1 is deliberately rules-only. Detection must not depend on an LLM.
+    enabled: false
+
+"%dev":
+  quarkus:
+    log:
+      category:
+        "io.kubepilot":
+          level: DEBUG
+
+"%test":
+  kubepilot:
+    ai:
+      enabled: false
+
+# ---------------------------------------------------------------------------
+# Added at later milestones -- kept here as a map, not as live config, so the
+# build stays clean until the matching extension and code exist.
+#
+# M2  quarkus.langchain4j.*            LLM provider (ollama in dev, openai in prod)
+#     quarkus.cache.caffeine.*         diagnosis cache, keyed on finding fingerprint
+# M3  quarkus.otel.*                   tracing; span per analyzer and per LLM call
+#     quarkus.micrometer.*             counter per ruleId
+# M6  quarkus.datasource.*             scan history
+#     quarkus.flyway.*                 schema migration
+# ---------------------------------------------------------------------------
