@@ -38,8 +38,6 @@ public class ScanOrchestrator {
                 findings.addAll(analyzer.analyze(snapshot));
                 succeeded++;
             } catch (Exception e) {
-                // Keep going: one broken analyzer must not discard the others' findings.
-                // Record the id so the caller can tell an incomplete scan from a clean one.
                 Log.warnf(e, "Analyzer %s failed", analyzer.id());
                 failed.add(analyzer.id());
             }
