@@ -5,7 +5,6 @@ import io.fabric8.kubernetes.client.utils.Serialization;
 
 import io.kubepilot.common.ClusterSnapshot;
 import io.kubepilot.common.Finding;
-import io.kubepilot.common.ResourceRef;
 import io.kubepilot.common.Severity;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

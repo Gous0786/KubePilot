@@ -26,7 +26,7 @@ public class PodAnalyzer implements Analyzer {
     static final String RULE_CRASH_LOOP = "pod-crash-loop";
     static final String RULE_UNSCHEDULABLE = "pod-unschedulable";
 
-    /** One problem, several strings: kubelet flips between these as it retries. */
+    
     private static final Set<String> IMAGE_PULL_REASONS = Set.of(
             "ErrImagePull",
             "ImagePullBackOff",
@@ -52,10 +52,10 @@ public class PodAnalyzer implements Analyzer {
         List<Finding> findings = new ArrayList<>();
         ResourceRef podRef = ResourceRef.of("Pod", namespaceOf(pod), nameOf(pod));
 
-        // Pod-level check.
+       
         unschedulable(pod, podRef).ifPresent(findings::add);
 
-        // Per-container checks: two containers can be broken in two different ways.
+
         for (ContainerStatus cs : containerStatuses(pod)) {
             ContainerState state = cs.getState();
             if (state == null) {
@@ -93,8 +93,7 @@ public class PodAnalyzer implements Analyzer {
         put(evidence, "reason", waiting.getReason());
         put(evidence, "restartCount", String.valueOf(orZero(cs.getRestartCount())));
 
-        // "CrashLoopBackOff" alone says nothing useful. WHY it crashed is in the
-        // PREVIOUS termination, not the current waiting state.
+
         String summary = "Container is restarting repeatedly";
         ContainerStateTerminated last =
                 cs.getLastState() == null ? null : cs.getLastState().getTerminated();
@@ -133,7 +132,6 @@ public class PodAnalyzer implements Analyzer {
         return Optional.empty();
     }
 
-    // --- null-safe helpers: almost every field in a Pod status is optional ---
 
     private static List<ContainerStatus> containerStatuses(Pod pod) {
         if (pod.getStatus() == null || pod.getStatus().getContainerStatuses() == null) {
