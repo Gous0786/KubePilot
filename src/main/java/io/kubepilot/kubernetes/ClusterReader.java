@@ -8,16 +8,24 @@ import io.kubepilot.common.ClusterSnapshot;
 @ApplicationScoped
 public class ClusterReader {
     private final KubernetesClient client;
-    
+
     @Inject
     public ClusterReader(KubernetesClient client) {
         this.client = client;
     }
+
     public ClusterSnapshot readCluster() {
-        return new ClusterSnapshot(client.pods().inAnyNamespace().list().getItems());
+        return new ClusterSnapshot(
+                client.pods().inAnyNamespace().list().getItems(),
+                client.apps().replicaSets().inAnyNamespace().list().getItems(),
+                client.apps().deployments().inAnyNamespace().list().getItems());
     }
+
     public ClusterSnapshot readCluster(String namespace) {
-        return new ClusterSnapshot(client.pods().inNamespace(namespace).list().getItems());
+        return new ClusterSnapshot(
+                client.pods().inNamespace(namespace).list().getItems(),
+                client.apps().replicaSets().inNamespace(namespace).list().getItems(),
+                client.apps().deployments().inNamespace(namespace).list().getItems());
     }
 
 }

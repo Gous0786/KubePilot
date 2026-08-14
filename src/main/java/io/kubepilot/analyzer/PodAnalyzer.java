@@ -10,6 +10,7 @@ import io.kubepilot.common.ClusterSnapshot;
 import io.kubepilot.common.Finding;
 import io.kubepilot.common.ResourceRef;
 import io.kubepilot.common.Severity;
+import io.kubepilot.util.OwnerResolver;
 import jakarta.enterprise.context.ApplicationScoped;
 
 import java.util.ArrayList;
@@ -46,14 +47,21 @@ public class PodAnalyzer implements Analyzer {
     public List<Finding> analyze(ClusterSnapshot snapshot) {
         List<Finding> findings = new ArrayList<>();
         for (Pod pod : snapshot.pods()) {
-            findings.addAll(analyzePod(pod));
+            findings.addAll(analyzePod(pod, snapshot));
         }
         return findings;
     }
 
-    private List<Finding> analyzePod(Pod pod) {
+    private List<Finding> analyzePod(Pod pod, ClusterSnapshot snapshot) {
         List<Finding> findings = new ArrayList<>();
         ResourceRef podRef = ResourceRef.of("Pod", namespaceOf(pod), nameOf(pod));
+
+        // Attribute the pod to whatever controls it, so sibling pods of one Deployment are
+        // recognisable as a single problem. Null for bare pods created with `kubectl run`.
+        ResourceRef owner = OwnerResolver.resolveOwner(pod, snapshot);
+        if (owner != null) {
+            podRef = podRef.withOwner(owner);
+        }
 
         unschedulable(pod, podRef).ifPresent(findings::add);
 

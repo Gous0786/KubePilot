@@ -47,6 +47,8 @@ public class ScanOrchestrator {
                 failed.add(analyzer.id());
             }
         }
-        return new ScanReport(findings, succeeded, failed);
+        // Collapse siblings only once every analyzer has contributed -- duplicates are a
+        // whole-scan property, invisible to any single analyzer.
+        return new ScanReport(FindingGrouper.group(findings), succeeded, failed);
     }
 }
