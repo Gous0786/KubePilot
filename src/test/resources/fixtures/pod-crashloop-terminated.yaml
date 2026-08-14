@@ -1,0 +1,144 @@
+﻿apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"v1","kind":"Pod","metadata":{"annotations":{},"name":"crasher","namespace":"default"},"spec":{"containers":[{"command":["/bin/sh","-c","exit 1"],"image":"busybox:1.36","name":"crasher"}],"restartPolicy":"Always"}}
+  creationTimestamp: "2026-08-13T13:28:03Z"
+  generation: 1
+  name: crasher
+  namespace: default
+  resourceVersion: "96062"
+  uid: e9d6b557-9688-4e17-b0a6-65e9bcee53f6
+spec:
+  containers:
+  - command:
+    - /bin/sh
+    - -c
+    - exit 1
+    image: busybox:1.36
+    imagePullPolicy: IfNotPresent
+    name: crasher
+    resources: {}
+    terminationMessagePath: /dev/termination-log
+    terminationMessagePolicy: File
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-4fk9f
+      readOnly: true
+  dnsPolicy: ClusterFirst
+  enableServiceLinks: true
+  nodeName: kubepilot-control-plane
+  preemptionPolicy: PreemptLowerPriority
+  priority: 0
+  restartPolicy: Always
+  schedulerName: default-scheduler
+  securityContext: {}
+  serviceAccount: default
+  serviceAccountName: default
+  terminationGracePeriodSeconds: 30
+  tolerations:
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 300
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 300
+  volumes:
+  - name: kube-api-access-4fk9f
+    projected:
+      defaultMode: 420
+      sources:
+      - serviceAccountToken:
+          expirationSeconds: 3607
+          path: token
+      - configMap:
+          items:
+          - key: ca.crt
+            path: ca.crt
+          name: kube-root-ca.crt
+      - downwardAPI:
+          items:
+          - fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+            path: namespace
+status:
+  conditions:
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-13T13:28:04Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodReadyToStartContainers
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-13T13:28:03Z"
+    observedGeneration: 1
+    status: "True"
+    type: Initialized
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-14T14:59:35Z"
+    message: 'containers with unready status: [crasher]'
+    observedGeneration: 1
+    reason: ContainersNotReady
+    status: "False"
+    type: Ready
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-14T14:59:35Z"
+    message: 'containers with unready status: [crasher]'
+    observedGeneration: 1
+    reason: ContainersNotReady
+    status: "False"
+    type: ContainersReady
+  - lastProbeTime: null
+    lastTransitionTime: "2026-08-13T13:28:03Z"
+    observedGeneration: 1
+    status: "True"
+    type: PodScheduled
+  containerStatuses:
+  - containerID: containerd://a9bcc72034ce269bf32c07f91a2cb73e1580aba4304c453f4a63328f6aba1356
+    image: docker.io/library/busybox:1.36
+    imageID: docker.io/library/busybox@sha256:73aaf090f3d85aa34ee199857f03fa3a95c8ede2ffd4cc2cdb5b94e566b11662
+    lastState:
+      terminated:
+        containerID: containerd://b0345d6b3392c94fbb09043fc71a3e636887859a0b9c5d604f496f02547e063f
+        exitCode: 1
+        finishedAt: "2026-08-14T14:54:28Z"
+        reason: Error
+        startedAt: "2026-08-14T14:54:28Z"
+    name: crasher
+    ready: false
+    resources: {}
+    restartCount: 103
+    started: false
+    state:
+      terminated:
+        containerID: containerd://a9bcc72034ce269bf32c07f91a2cb73e1580aba4304c453f4a63328f6aba1356
+        exitCode: 1
+        finishedAt: "2026-08-14T14:59:34Z"
+        reason: Error
+        startedAt: "2026-08-14T14:59:34Z"
+    user:
+      linux:
+        gid: 0
+        supplementalGroups:
+        - 0
+        - 10
+        uid: 0
+    volumeMounts:
+    - mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+      name: kube-api-access-4fk9f
+      readOnly: true
+      recursiveReadOnly: Disabled
+  hostIP: 172.18.0.2
+  hostIPs:
+  - ip: 172.18.0.2
+  observedGeneration: 1
+  phase: Running
+  podIP: 10.244.0.6
+  podIPs:
+  - ip: 10.244.0.6
+  qosClass: BestEffort
+  resources: {}
+  startTime: "2026-08-13T13:28:03Z"
