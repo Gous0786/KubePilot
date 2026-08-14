@@ -16,5 +16,8 @@ public class ClusterReader {
     public ClusterSnapshot readCluster() {
         return new ClusterSnapshot(client.pods().inAnyNamespace().list().getItems());
     }
+    public ClusterSnapshot readCluster(String namespace) {
+        return new ClusterSnapshot(client.pods().inNamespace(namespace).list().getItems());
+    }
 
 }

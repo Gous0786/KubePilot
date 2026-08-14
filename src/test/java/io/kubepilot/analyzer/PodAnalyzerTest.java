@@ -66,8 +66,6 @@ public class PodAnalyzerTest {
         Finding f = findings.getFirst();
         assertEquals(PodAnalyzer.RULE_CRASH_LOOP, f.ruleId());
         assertEquals("CrashLoopBackOff", f.evidence().get("reason"));
-
-        // Pulled from the PREVIOUS termination, since the container is not dead right now.
         assertEquals("Error", f.evidence().get("terminationReason"));
         assertEquals("1", f.evidence().get("exitCode"));
     }

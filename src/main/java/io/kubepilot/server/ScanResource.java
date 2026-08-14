@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 @ApplicationScoped
@@ -22,7 +23,7 @@ public class ScanResource {
     @Path("/scan")
     @Produces(MediaType.APPLICATION_JSON)
     @RunOnVirtualThread
-    public ScanReport scan() {
-        return orchestrator.scan();
+    public ScanReport scan(@QueryParam("namespace") String namespace) {
+        return orchestrator.scan(namespace);
     }
 }

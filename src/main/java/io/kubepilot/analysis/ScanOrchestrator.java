@@ -9,10 +9,8 @@ import io.kubepilot.common.ScanReport;
 import io.quarkus.arc.All;
 import io.quarkus.logging.Log;
 
-
 import java.util.List;
 import java.util.ArrayList;
-
 
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -26,9 +24,16 @@ public class ScanOrchestrator {
         this.analyzers = analyzers;
         this.reader = reader;
     }
-
     public ScanReport scan(){
-        ClusterSnapshot snapshot = reader.readCluster();
+        return runAnalyzers(reader.readCluster());
+    }
+    public ScanReport scan(String namespace){
+        if (namespace == null || namespace.isBlank()) {
+            return scan();
+        }
+        return runAnalyzers(reader.readCluster(namespace));
+    }
+    private ScanReport runAnalyzers(ClusterSnapshot snapshot){
         List<Finding> findings = new ArrayList<>();
         List<String> failed = new ArrayList<>();
         int succeeded = 0;
@@ -44,5 +49,4 @@ public class ScanOrchestrator {
         }
         return new ScanReport(findings, succeeded, failed);
     }
-    
 }
