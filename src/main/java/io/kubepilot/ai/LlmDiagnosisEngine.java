@@ -7,6 +7,7 @@ import io.kubepilot.common.ResourceRef;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Retry;
@@ -16,14 +17,18 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class LlmDiagnosisEngine implements DiagnosisEngine {
 
-    private final DiagnosisAiService aiService;
+    private final DiagnosisCache cache;
 
-    public LlmDiagnosisEngine(DiagnosisAiService aiService) {
-        this.aiService = aiService;
+    @ConfigProperty(name = "quarkus.langchain4j.openai.chat-model.model-name", defaultValue = "unknown")
+    String modelName;
+
+    public LlmDiagnosisEngine(DiagnosisCache cache) {
+        this.cache = cache;
     }
 
     @Override
@@ -32,7 +37,8 @@ public class LlmDiagnosisEngine implements DiagnosisEngine {
     @CircuitBreaker(requestVolumeThreshold = 4, failureRatio = 0.5, delay = 60, delayUnit = ChronoUnit.SECONDS)
     @Fallback(fallbackMethod = "modelUnavailable")
     public Diagnosis diagnose(ResourceRef workload, List<Finding> findings) {
-        return aiService.diagnose(
+        return cache.get(
+                cacheKey(workload, findings),
                 workload.namespace(),
                 workload.kind(),
                 workload.name(),
@@ -44,6 +50,18 @@ public class LlmDiagnosisEngine implements DiagnosisEngine {
     private Diagnosis modelUnavailable(ResourceRef workload, List<Finding> findings) {
         Log.warnf("No diagnosis for %s: model unavailable", workload);
         return Diagnosis.unavailable("No diagnosis available: the language model could not be reached.");
+    }
+
+    private String cacheKey(ResourceRef workload, List<Finding> findings) {
+        String problems = findings.stream()
+                .map(Finding::fingerprint)
+                .sorted()
+                .collect(Collectors.joining(","));
+
+        return String.join("::",
+                modelName,
+                workload.kind() + "/" + workload.namespace() + "/" + workload.name(),
+                problems);
     }
 
     private static int affectedInstances(List<Finding> findings) {

@@ -11,6 +11,17 @@ quarkus:
   kubernetes-client:
     trust-certs: false
 
+  # Diagnoses are cached on the finding fingerprints of a workload, not on the prompt text.
+  # Prompt bytes carry restartCount and finishedAt, which change on every scan, so a
+  # payload-keyed cache would never hit. The TTL bounds how stale an unchanged-looking
+  # problem may get. Ten minutes is short enough that a changed exit code or termination
+  # reason surfaces quickly, since those do not alter the fingerprint.
+  cache:
+    caffeine:
+      diagnosis:
+        expire-after-write: 10M
+        maximum-size: 500
+
   # Speaks the OpenAI HTTP dialect, which Ollama, vLLM, Groq, Azure and LiteLLM all accept.
   # The provider is therefore a URL, not a code change. Point base-url at LiteLLM to route
   # centrally, or straight at Ollama's /v1 during development.
