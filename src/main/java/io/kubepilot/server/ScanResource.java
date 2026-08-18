@@ -6,6 +6,7 @@ import io.smallrye.common.annotation.RunOnVirtualThread;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -23,7 +24,7 @@ public class ScanResource {
     @Path("/scan")
     @Produces(MediaType.APPLICATION_JSON)
     @RunOnVirtualThread
-    public ScanReport scan(@QueryParam("namespace") String namespace) {
-        return orchestrator.scan(namespace);
+    public ScanReport scan(@QueryParam("namespace") String namespace,@QueryParam("explain") @DefaultValue("false") boolean explain) {
+        return orchestrator.scan(namespace, explain);
     }
 }

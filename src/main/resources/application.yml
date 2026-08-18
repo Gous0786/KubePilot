@@ -11,6 +11,19 @@ quarkus:
   kubernetes-client:
     trust-certs: false
 
+  # Speaks the OpenAI HTTP dialect, which Ollama, vLLM, Groq, Azure and LiteLLM all accept.
+  # The provider is therefore a URL, not a code change. Point base-url at LiteLLM to route
+  # centrally, or straight at Ollama's /v1 during development.
+  # model-name is a LiteLLM alias naming a ROLE, never a vendor model.
+  langchain4j:
+    openai:
+      base-url: ${KUBEPILOT_LLM_URL:http://localhost:4000/v1}
+      api-key: ${KUBEPILOT_LLM_KEY:sk-kubepilot-local}
+      chat-model:
+        model-name: ${KUBEPILOT_LLM_MODEL:kubepilot-fast}
+        temperature: 0.2
+      timeout: 60s
+
 # ---------------------------------------------------------------------------
 # KubePilot's own configuration. Read via an @ConfigMapping interface rather
 # than scattered @ConfigProperty injections -- see docs/architecture.md.
@@ -40,6 +53,10 @@ kubepilot:
       category:
         "io.kubepilot":
           level: DEBUG
+    langchain4j:
+      openai:
+        log-requests: true
+        log-responses: true
 
 "%test":
   kubepilot:

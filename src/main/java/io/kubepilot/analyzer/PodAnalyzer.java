@@ -56,8 +56,6 @@ public class PodAnalyzer implements Analyzer {
         List<Finding> findings = new ArrayList<>();
         ResourceRef podRef = ResourceRef.of("Pod", namespaceOf(pod), nameOf(pod));
 
-        // Attribute the pod to whatever controls it, so sibling pods of one Deployment are
-        // recognisable as a single problem. Null for bare pods created with `kubectl run`.
         ResourceRef owner = OwnerResolver.resolveOwner(pod, snapshot);
         if (owner != null) {
             podRef = podRef.withOwner(owner);
