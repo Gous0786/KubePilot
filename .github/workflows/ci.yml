@@ -9,10 +9,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 jobs:
   build:
     name: build + test
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
@@ -26,9 +30,31 @@ jobs:
       - name: Make wrapper executable
         run: chmod +x ./mvnw
 
-      # Runs unit tests, the ArchUnit boundary checks, and the golden analyzer
-      # tests. Deliberately needs no Kubernetes cluster: analyzers operate on
-      # fixtures, and anything touching the fabric8 client uses Dev Services or
-      # @WithKubernetesTestServer.
+      # Runs unit tests, the ArchUnit boundary checks, the golden analyzer tests
+      # and the redaction leak tests. Deliberately needs no Kubernetes cluster:
+      # analyzers operate on fixtures, and anything touching the fabric8 client
+      # uses Dev Services or @WithKubernetesTestServer.
       - name: Verify
         run: ./mvnw -B --no-transfer-progress verify
+
+  secrets:
+    name: secret scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # fetch-depth: 0 is required. The default shallow clone gives gitleaks a
+      # single commit, so a key committed earlier and later deleted would pass.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitleaks
+        uses: docker://zricethezav/gitleaks:v8.30.1
+        with:
+          args: >-
+            detect
+            --source=/github/workspace
+            --config=/github/workspace/.gitleaks.toml
+            --redact
+            --no-banner
+            --verbose

@@ -1,0 +1,16 @@
+title = "KubePilot secret scanning"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = """
+Documented placeholders, not credentials. Allowlisted by literal value rather than by path, so a
+real secret committed into the same file is still caught.
+"""
+
+regexes = [
+  # Default LiteLLM master key used in deploy/.env.example and the LiteLLM README. The `sk-` prefix
+  # makes it look like an OpenAI key to the default ruleset.
+  '''sk-kubepilot-local''',
+]
