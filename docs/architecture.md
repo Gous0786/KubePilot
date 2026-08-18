@@ -23,13 +23,13 @@ Everything left of `ai/` runs without a model. That is the point.
 
 ## Package map
 
-Mirrors k8sgpt. Go's `pkg/` prefix has no Java equivalent, so those packages sit directly under
-`io.kubepilot`. Each package's `package-info.java` is authoritative on what belongs in it.
+Packages are organised by concern rather than by layer. Each package's `package-info.java` is
+authoritative on what belongs in it.
 
 | Package | Role | May depend on |
 | --- | --- | --- |
 | `common` | Shared types: findings, failures, refs, severity | JDK only |
-| `analyzer` | One class per rule, flat as in k8sgpt | `common` |
+| `analyzer` | One class per rule, kept flat | `common` |
 | `analysis` | Orchestration: snapshot, fan-out, group, enrich | `common`, `analyzer`, `kubernetes`, `cache`, `ai` |
 | `ai` | LLM backends, prompt assembly, **redaction** | `common` |
 | `kubernetes` | fabric8 client, API reference, snapshot builder | `common` |
@@ -85,6 +85,9 @@ Record scan wall-time at the end of M1. Without a before-number the M4 migration
 - **Golden analyzer tests.** Fixture YAML in, exact findings out. No cluster, no model, no network.
 - **1:1 fixtures to rules.** A fixture with no finding means a missing analyzer; a finding with no fixture
   means an untested rule. Keeping the mapping honest is what makes a 30-rule catalog trustworthy.
+- **Redaction on the LLM boundary.** One chokepoint in `ai/`, applied while the prompt is built
+  rather than on the wire, so the dev request log is covered too. Values are masked, identifiers
+  preserved. See [redaction.md](redaction.md).
 - **Fault tolerance on the LLM boundary.** `@Timeout`, `@Retry`, `@CircuitBreaker`, `@Fallback` to rules-only.
   An SRE tool must stay useful during its provider's incident.
 - **`@ConfigMapping` interfaces** over scattered `@ConfigProperty`. Profiles, never `if (isDev())`.

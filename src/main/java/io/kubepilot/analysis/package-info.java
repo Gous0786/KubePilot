@@ -1,5 +1,5 @@
 /**
- * Scan orchestration and output formatting. Equivalent to k8sgpt's {@code pkg/analysis}.
+ * Scan orchestration and output formatting.
  *
  * <p>Owns the run sequence: build snapshot, fan out to analyzers, dedup and group, then
  * optionally enrich through {@code ai}. This is the only package that knows the whole

@@ -1,8 +1,7 @@
 /**
- * Custom and remote analyzers. Equivalent to k8sgpt's {@code pkg/custom_analyzer}.
+ * Custom and remote analyzers.
  *
  * <p>Lets an analyzer run outside this process and be registered purely by configuration.
- * Speaking k8sgpt's custom-analyzer schema here would make existing k8sgpt analyzers reusable
- * as-is.
+ * A documented wire schema here would let third-party analyzers be reused as-is.
  */
 package io.kubepilot.custom;

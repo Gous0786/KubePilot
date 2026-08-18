@@ -1,5 +1,5 @@
 /**
- * Reserved for Picocli subcommands, mirroring k8sgpt's {@code cmd/} (analyze, auth, cache,
+ * Reserved for Picocli subcommands (analyze, auth, cache,
  * customAnalyzer, dump, filters, generate, integration, serve).
  *
  * <p>Empty by design. This project is REST-first and a CLI face comes later over the same

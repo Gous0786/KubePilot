@@ -6,6 +6,7 @@ import io.kubepilot.common.ClusterSnapshot;
 import io.kubepilot.common.Diagnosis;
 import io.kubepilot.common.DiagnosisEngine;
 import io.kubepilot.common.Finding;
+import io.kubepilot.common.Redactor;
 import io.kubepilot.common.ResourceRef;
 import io.kubepilot.common.ScanReport;
 
@@ -26,11 +27,14 @@ public class ScanOrchestrator {
     private final List<Analyzer> analyzers;
     private final ClusterReader reader;
     private final DiagnosisEngine engine;
+    private final Redactor redactor;
 
-    public ScanOrchestrator(@All List<Analyzer> analyzers, ClusterReader reader, DiagnosisEngine engine) {
+    public ScanOrchestrator(@All List<Analyzer> analyzers, ClusterReader reader, DiagnosisEngine engine,
+                            Redactor redactor) {
         this.analyzers = analyzers;
         this.reader = reader;
         this.engine = engine;
+        this.redactor = redactor;
     }
 
     public ScanReport scan() {
@@ -43,7 +47,10 @@ public class ScanOrchestrator {
 
     public ScanReport scan(String namespace, boolean explain) {
         ScanReport report = runAnalyzers(snapshotFor(namespace));
-        return explain ? report.withDiagnoses(diagnose(report.findings())) : report;
+        if (!explain) {
+            return report;
+        }
+        return report.withDiagnoses(diagnose(report.findings()), redactor.level().name().toLowerCase());
     }
 
     private ClusterSnapshot snapshotFor(String namespace) {

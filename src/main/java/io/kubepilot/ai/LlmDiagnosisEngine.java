@@ -3,6 +3,7 @@ package io.kubepilot.ai;
 import io.kubepilot.common.Diagnosis;
 import io.kubepilot.common.DiagnosisEngine;
 import io.kubepilot.common.Finding;
+import io.kubepilot.common.Redactor;
 import io.kubepilot.common.ResourceRef;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -23,12 +24,14 @@ import java.util.stream.Collectors;
 public class LlmDiagnosisEngine implements DiagnosisEngine {
 
     private final DiagnosisCache cache;
+    private final Redactor redactor;
 
     @ConfigProperty(name = "quarkus.langchain4j.openai.chat-model.model-name", defaultValue = "unknown")
     String modelName;
 
-    public LlmDiagnosisEngine(DiagnosisCache cache) {
+    public LlmDiagnosisEngine(DiagnosisCache cache, Redactor redactor) {
         this.cache = cache;
+        this.redactor = redactor;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class LlmDiagnosisEngine implements DiagnosisEngine {
         return findings.stream().mapToInt(Finding::affectedCount).max().orElse(1);
     }
 
-    private static String format(List<Finding> findings) {
+    private String format(List<Finding> findings) {
         StringJoiner out = new StringJoiner("\n\n");
         for (Finding f : findings) {
             StringJoiner block = new StringJoiner("\n");
@@ -80,7 +83,7 @@ public class LlmDiagnosisEngine implements DiagnosisEngine {
                 block.add("  container: " + f.ref().container());
             }
             block.add("  summary: " + f.summary());
-            for (Map.Entry<String, String> e : f.evidence().entrySet()) {
+            for (Map.Entry<String, String> e : redactor.redactEvidence(f.evidence()).entrySet()) {
                 block.add("  " + e.getKey() + ": " + e.getValue());
             }
             if (!f.affected().isEmpty()) {
@@ -88,6 +91,6 @@ public class LlmDiagnosisEngine implements DiagnosisEngine {
             }
             out.add(block.toString());
         }
-        return out.toString();
+        return redactor.redactText(out.toString());
     }
 }

@@ -11,8 +11,9 @@ KubePilot must find problems in a Kubernetes cluster and explain them. There are
 demo, but every scan costs tokens and seconds, results vary between identical runs, there is nothing to unit
 test, and the product stops working when the provider has an incident.
 
-**Rules-first:** deterministic analyzers detect, and the LLM explains what they found. This is what k8sgpt
-does, and it is why k8sgpt is cheap enough to run continuously.
+**Rules-first:** deterministic analyzers detect, and the LLM explains what they found. This is the
+established shape for cluster diagnostic tooling, and it is what makes such a tool cheap enough to
+run continuously.
 
 ## Decision
 
@@ -42,7 +43,8 @@ Good:
 Costs, accepted:
 
 - Novel failure modes nobody wrote a rule for go undetected. Mitigated by M5/M8 exploratory modes.
-- The analyzer catalog is ongoing work; k8sgpt carries ~30 analyzers. This is the real cost of the approach.
+- The analyzer catalog is ongoing work; comparable tools carry around thirty analyzers. This is the real
+  cost of the approach.
 - `Finding` becomes load-bearing early and is expensive to change later, so its shape deserves care now.
 
 ## Alternatives rejected

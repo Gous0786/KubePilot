@@ -1,5 +1,5 @@
 /**
- * Small stateless helpers. Equivalent to k8sgpt's {@code pkg/util}.
+ * Small stateless helpers.
  *
  * <p>Resist letting this become a dumping ground: anything with a domain meaning belongs in
  * {@code common} instead.

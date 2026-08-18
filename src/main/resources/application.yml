@@ -58,6 +58,12 @@ kubepilot:
     # M1 is deliberately rules-only. Detection must not depend on an LLM.
     enabled: false
 
+    # strict   allowlisted evidence keys only; free text dropped
+    # standard values masked with descriptive placeholders, identifiers preserved
+    # off      no redaction; only for an endpoint you control end to end
+    # See docs/redaction.md. The active level is reported in every explained scan.
+    redaction: standard
+
 "%dev":
   quarkus:
     log:
