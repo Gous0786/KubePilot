@@ -79,6 +79,7 @@ those before adding a class.
 ## Security
 
 - Cluster access is read-only.
-- Evidence is redacted in the `ai` package before anything reaches a model provider. Pod specs, environment
-  variables and ConfigMaps routinely contain credentials.
-- Every model call is audited: provider, token counts, and the findings referenced.
+- Evidence is redacted in the `ai` package before anything reaches a model provider — credential values are
+  masked while resource names, keys and reasons are preserved. Applied while the prompt is assembled, so
+  request logging is covered too. See [docs/redaction.md](docs/redaction.md).
+- Secret scanning runs on every push and pull request over the full git history.
